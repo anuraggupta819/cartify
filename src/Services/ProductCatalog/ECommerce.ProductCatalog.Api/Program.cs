@@ -4,6 +4,8 @@ using ECommerce.ProductCatalog.Infrastructure;
 using ECommerce.ProductCatalog.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
+const string FrontendCorsPolicy = "FrontendCorsPolicy";
+
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddProductCatalogInfrastructure(builder.Configuration);
@@ -12,6 +14,16 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
 builder.Services.AddProblemDetails();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(FrontendCorsPolicy, policy =>
+    {
+        policy.WithOrigins("http://localhost:5173")
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
+});
 
 var connectionString = builder.Configuration.GetConnectionString("ProductCatalogDb")
     ?? throw new InvalidOperationException("Connection string 'ProductCatalogDb' is not configured.");
@@ -28,6 +40,8 @@ using (var scope = app.Services.CreateScope())
 }
 
 app.UseExceptionHandler();
+
+app.UseCors(FrontendCorsPolicy);
 
 if (app.Environment.IsDevelopment())
 {
