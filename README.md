@@ -30,16 +30,28 @@ Each service follows a pragmatic layered structure: `Domain` (entities + invaria
 ## Prerequisites
 
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
-- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- Either [Docker Desktop](https://www.docker.com/products/docker-desktop) (preferred — matches CI/deployment), or a local [PostgreSQL](https://www.postgresql.org/download/windows/) install for machines where Docker isn't available (e.g. no hardware virtualization support)
 
 ## Running locally
 
+**With Docker** (preferred):
 ```bash
 docker compose up -d --build
 ```
-
 - ProductCatalog API: http://localhost:5101/swagger
 - Health check: http://localhost:5101/health
+
+**Without Docker** (native Postgres):
+1. Install PostgreSQL and create a `productcatalogdb` database (default port 5432, user `postgres`).
+2. `appsettings.Development.json` already points at `localhost:5432` — adjust credentials there if yours differ.
+3. From `src/Services/ProductCatalog/ECommerce.ProductCatalog.Api`, run:
+   ```bash
+   dotnet run
+   ```
+   Migrations apply automatically on startup.
+- ProductCatalog API: http://localhost:5283/swagger (port from `launchSettings.json`; opens automatically)
+
+The `Dockerfile`/`docker-compose.yml` stay in the repo either way — they're validated by CI (which runs on Linux runners with full virtualization) even on machines that can't run Docker locally, and they're what a real deployment (Azure Container Apps) would use.
 
 ## Running tests
 
@@ -47,7 +59,7 @@ docker compose up -d --build
 dotnet test
 ```
 
-Integration tests use [Testcontainers](https://testcontainers.com/) to spin up a real Postgres instance, so Docker must be running.
+Unit tests always run. Integration tests use [Testcontainers](https://testcontainers.com/) to spin up a real Postgres instance in a container, so they require Docker specifically — they'll pass in CI even on a machine where Docker isn't available locally.
 
 ## Project layout
 
