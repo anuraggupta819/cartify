@@ -10,9 +10,14 @@
 | 5 | Serilog + Seq, correlation-ID propagation across services, health checks wired into compose | 🔜 |
 | 6 | GitHub Actions CI/CD (build/test/image build), Azure Container Apps deployment docs | 🔜 |
 
+## Frontend
+
+A React + TypeScript SPA (`frontend/`) was added alongside the backend phases above, covering the ProductCatalog vertical slice: paginated product list, create/edit/delete, inline category creation. See the root [README.md](../README.md#frontend) for stack details and how to run it. It will grow alongside the backend roadmap — e.g. an Orders UI once Phase 2 (OrderManagement) lands.
+
 ## Design notes
 
 - **Choreography over orchestration**: services react to each other's events independently rather than through a central saga coordinator. Simpler to build, harder to trace at scale — a deliberate tradeoff for this project's size.
 - **RabbitMQ on Azure**: not a native PaaS offering. Options for Phase 6: run RabbitMQ as a sidecar container in the same Azure Container Apps environment, or use CloudAMQP's free tier.
 - **Auth**: a minimal JWT-issuing `Identity.Api` rather than full Duende IdentityServer — enough to demonstrate the pattern without licensing/complexity overhead disproportionate to a portfolio project.
 - **Local dev without Docker**: the dev machine's CPU (AMD Ryzen 5 7520U) doesn't expose hardware virtualization extensions to Windows (`VMMonitorModeExtensions: False` even with the BIOS toggle and all Windows features enabled), so Docker Desktop can't run locally. `Dockerfile`/`docker-compose.yml` stay in the repo as the source of truth — CI (GitHub Actions, Linux runners) builds and validates them, and they're what a real deployment uses. For day-to-day local dev, the app runs directly via `dotnet run` against a natively-installed PostgreSQL 16 instance; `appsettings.Development.json` carries that connection string (port 5432) separately from the Docker-oriented default in `appsettings.json` (port 5433, matching `docker-compose.yml`'s port mapping). Integration tests (Testcontainers) still require Docker, so they only run in CI on this machine, not locally.
+- **Repo layout**: top-level `backend/` and `frontend/` folders keep the two stacks' tooling (MSBuild/NuGet vs. npm) independent — each has its own dependency lockfile, and CI runs them as separate jobs so a frontend change can't block a backend-only PR and vice versa.
