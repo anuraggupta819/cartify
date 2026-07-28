@@ -8,16 +8,24 @@ Full microservices (not a modular monolith): each bounded context is an independ
 
 | Service | Status | Responsibility |
 |---|---|---|
-| Catalog | ✅ Phase 1 | Products & categories (CRUD) |
-| Ordering | 🔜 Phase 2 | Order lifecycle, order state machine |
-| Payment | 🔜 Phase 3 | Simulated payment processing |
-| Inventory | 🔜 Phase 3 | Stock reservation |
+| ProductCatalog | ✅ Phase 1 | Products & categories (CRUD) |
+| OrderManagement | 🔜 Phase 2 | Order lifecycle, order state machine |
+| PaymentProcessing | 🔜 Phase 3 | Simulated payment processing |
+| StockManagement | 🔜 Phase 3 | Stock reservation |
 | Gateway | 🔜 Phase 4 | YARP reverse proxy, single entry point |
 | Identity | 🔜 Phase 4 | JWT issuance |
 
 See [docs/phase-plan.md](docs/phase-plan.md) for the full roadmap.
 
-Each service follows a pragmatic layered structure: `Domain` (entities + invariants) → `Application` (DTOs, service orchestration) → `Infrastructure` (EF Core, repositories) → `Api` (minimal API endpoints, Swagger, health checks).
+Each service follows a pragmatic layered structure: `Domain` (entities + invariants) → `Application` (DTOs, service orchestration, Unit of Work) → `Infrastructure` (EF Core, repositories) → `Api` (minimal API endpoints, Swagger, health checks, centralized exception handling).
+
+### Design principles
+
+- **Single Responsibility** — repositories only persist, services only orchestrate, mapping lives in dedicated extension methods, domain entities own their own invariants.
+- **Open/Closed** — cross-cutting concerns (validation-error → HTTP response translation) are handled by a single exception-handling middleware, so adding a new endpoint never requires re-implementing error handling.
+- **Liskov Substitution** — every repository is used strictly through its interface (`IProductRepository`, `ICategoryRepository`); nothing downcasts or depends on a concrete implementation.
+- **Interface Segregation** — `IUnitOfWork` is separate from the repository interfaces, so a consumer that only needs to persist doesn't have to depend on query methods it never calls.
+- **Dependency Inversion** — `Application` defines the abstractions (`IProductRepository`, `IUnitOfWork`); `Infrastructure` implements them; `Api` wires concrete types via DI only, and never references EF Core directly.
 
 ## Prerequisites
 
@@ -30,7 +38,7 @@ Each service follows a pragmatic layered structure: `Domain` (entities + invaria
 docker compose up -d --build
 ```
 
-- Catalog API: http://localhost:5101/swagger
+- ProductCatalog API: http://localhost:5101/swagger
 - Health check: http://localhost:5101/health
 
 ## Running tests
@@ -44,7 +52,7 @@ Integration tests use [Testcontainers](https://testcontainers.com/) to spin up a
 ## Project layout
 
 ```
-src/Services/Catalog/   Catalog microservice (Domain/Application/Infrastructure/Api)
-tests/Catalog/          Unit and integration tests for the Catalog service
-docker-compose.yml       Local orchestration (Postgres + services)
+src/Services/ProductCatalog/   ProductCatalog microservice (Domain/Application/Infrastructure/Api)
+tests/ProductCatalog/          Unit and integration tests for the ProductCatalog service
+docker-compose.yml              Local orchestration (Postgres + services)
 ```

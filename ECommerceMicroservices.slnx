@@ -1,15 +1,15 @@
 <Solution>
   <Folder Name="/src/" />
   <Folder Name="/src/Services/" />
-  <Folder Name="/src/Services/Catalog/">
-    <Project Path="src/Services/Catalog/ECommerce.Catalog.Api/ECommerce.Catalog.Api.csproj" />
-    <Project Path="src/Services/Catalog/ECommerce.Catalog.Application/ECommerce.Catalog.Application.csproj" />
-    <Project Path="src/Services/Catalog/ECommerce.Catalog.Domain/ECommerce.Catalog.Domain.csproj" />
-    <Project Path="src/Services/Catalog/ECommerce.Catalog.Infrastructure/ECommerce.Catalog.Infrastructure.csproj" />
+  <Folder Name="/src/Services/ProductCatalog/">
+    <Project Path="src/Services/ProductCatalog/ECommerce.ProductCatalog.Api/ECommerce.ProductCatalog.Api.csproj" />
+    <Project Path="src/Services/ProductCatalog/ECommerce.ProductCatalog.Application/ECommerce.ProductCatalog.Application.csproj" />
+    <Project Path="src/Services/ProductCatalog/ECommerce.ProductCatalog.Domain/ECommerce.ProductCatalog.Domain.csproj" />
+    <Project Path="src/Services/ProductCatalog/ECommerce.ProductCatalog.Infrastructure/ECommerce.ProductCatalog.Infrastructure.csproj" />
   </Folder>
   <Folder Name="/tests/" />
-  <Folder Name="/tests/Catalog/">
-    <Project Path="tests/Catalog/ECommerce.Catalog.IntegrationTests/ECommerce.Catalog.IntegrationTests.csproj" />
-    <Project Path="tests/Catalog/ECommerce.Catalog.UnitTests/ECommerce.Catalog.UnitTests.csproj" />
+  <Folder Name="/tests/ProductCatalog/">
+    <Project Path="tests/ProductCatalog/ECommerce.ProductCatalog.IntegrationTests/ECommerce.ProductCatalog.IntegrationTests.csproj" />
+    <Project Path="tests/ProductCatalog/ECommerce.ProductCatalog.UnitTests/ECommerce.ProductCatalog.UnitTests.csproj" />
   </Folder>
 </Solution>

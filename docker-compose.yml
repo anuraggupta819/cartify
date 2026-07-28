@@ -1,32 +1,32 @@
 services:
-  catalog-db:
+  product-catalog-db:
     image: postgres:16-alpine
     environment:
-      POSTGRES_DB: catalogdb
+      POSTGRES_DB: productcatalogdb
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
       - "5433:5432"
     volumes:
-      - catalog-db-data:/var/lib/postgresql/data
+      - product-catalog-db-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  catalog-api:
+  product-catalog-api:
     build:
       context: .
-      dockerfile: src/Services/Catalog/ECommerce.Catalog.Api/Dockerfile
+      dockerfile: src/Services/ProductCatalog/ECommerce.ProductCatalog.Api/Dockerfile
     ports:
       - "5101:8080"
     environment:
       ASPNETCORE_ENVIRONMENT: Development
-      ConnectionStrings__CatalogDb: "Host=catalog-db;Port=5432;Database=catalogdb;Username=postgres;Password=postgres"
+      ConnectionStrings__ProductCatalogDb: "Host=product-catalog-db;Port=5432;Database=productcatalogdb;Username=postgres;Password=postgres"
     depends_on:
-      catalog-db:
+      product-catalog-db:
         condition: service_healthy
 
 volumes:
-  catalog-db-data:
+  product-catalog-db-data:
