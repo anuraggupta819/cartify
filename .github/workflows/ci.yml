@@ -84,3 +84,21 @@ jobs:
           tags: |
             ghcr.io/anuraggupta819/cartify-productcatalog-api:latest
             ghcr.io/anuraggupta819/cartify-productcatalog-api:${{ github.sha }}
+
+  deploy:
+    needs: [build-and-push]
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Update Container App image
+        uses: azure/CLI@v2
+        with:
+          inlineScript: |
+            az containerapp update \
+              --name cartify-api \
+              --resource-group cartify-rg \
+              --image ghcr.io/anuraggupta819/cartify-productcatalog-api:${{ github.sha }}
