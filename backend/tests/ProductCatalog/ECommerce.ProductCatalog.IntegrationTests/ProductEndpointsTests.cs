@@ -1,4 +1,5 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using ECommerce.ProductCatalog.Application.Common;
 using ECommerce.ProductCatalog.Application.Dtos;
@@ -7,7 +8,14 @@ namespace ECommerce.ProductCatalog.IntegrationTests;
 
 public class ProductEndpointsTests(ProductCatalogApiFactory factory) : IClassFixture<ProductCatalogApiFactory>
 {
-    private readonly HttpClient _client = factory.CreateClient();
+    private readonly HttpClient _client = CreateAuthenticatedClient(factory);
+
+    private static HttpClient CreateAuthenticatedClient(ProductCatalogApiFactory factory)
+    {
+        var client = factory.CreateClient();
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", TestJwt.CreateAdminToken());
+        return client;
+    }
 
     [Fact]
     public async Task CreateProduct_ThenGetIt_ReturnsSameProduct()
@@ -85,6 +93,27 @@ public class ProductEndpointsTests(ProductCatalogApiFactory factory) : IClassFix
 
         var getResponse = await _client.GetAsync($"/api/products/{created.Id}");
         Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task CreateProduct_WithoutToken_ReturnsUnauthorized()
+    {
+        var anonymousClient = factory.CreateClient();
+        var createRequest = new CreateProductRequest("Sneaky", "desc", $"SKU-{Guid.NewGuid():N}", 9.99m, Guid.NewGuid());
+
+        var response = await anonymousClient.PostAsJsonAsync("/api/products", createRequest);
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task GetProducts_WithoutToken_StillSucceeds()
+    {
+        var anonymousClient = factory.CreateClient();
+
+        var response = await anonymousClient.GetAsync("/api/products");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     private async Task<CategoryDto> CreateCategoryAsync(string name)

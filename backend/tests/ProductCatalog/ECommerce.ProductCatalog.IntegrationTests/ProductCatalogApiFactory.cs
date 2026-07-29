@@ -23,7 +23,10 @@ public class ProductCatalogApiFactory : WebApplicationFactory<Program>, IAsyncLi
         {
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ConnectionStrings:ProductCatalogDb"] = _postgres.GetConnectionString()
+                ["ConnectionStrings:ProductCatalogDb"] = _postgres.GetConnectionString(),
+                ["Jwt:Key"] = "test-only-signing-key-not-used-anywhere-else-32chars+",
+                ["Jwt:Issuer"] = "cartify-identity",
+                ["Jwt:Audience"] = "cartify",
             });
         });
 

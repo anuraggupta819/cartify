@@ -22,19 +22,19 @@ public static class ProductEndpoints
         {
             var product = await service.CreateAsync(request, cancellationToken);
             return Results.Created($"/api/products/{product.Id}", product);
-        });
+        }).RequireAuthorization("RequireAdminRole");
 
         group.MapPut("/{id:guid}", async (Guid id, UpdateProductRequest request, ProductService service, CancellationToken cancellationToken) =>
         {
             var product = await service.UpdateAsync(id, request, cancellationToken);
             return product is null ? Results.NotFound() : Results.Ok(product);
-        });
+        }).RequireAuthorization("RequireAdminRole");
 
         group.MapDelete("/{id:guid}", async (Guid id, ProductService service, CancellationToken cancellationToken) =>
         {
             var deleted = await service.DeleteAsync(id, cancellationToken);
             return deleted ? Results.NoContent() : Results.NotFound();
-        });
+        }).RequireAuthorization("RequireAdminRole");
 
         return group;
     }

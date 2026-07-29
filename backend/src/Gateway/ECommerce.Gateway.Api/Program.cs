@@ -1,23 +1,11 @@
-using System.Text;
-using ECommerce.ProductCatalog.Api.Endpoints;
-using ECommerce.ProductCatalog.Api.ExceptionHandling;
-using ECommerce.ProductCatalog.Infrastructure;
-using ECommerce.ProductCatalog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 const string FrontendCorsPolicy = "FrontendCorsPolicy";
-const string RequireAdminRolePolicy = "RequireAdminRole";
 
 var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddProductCatalogInfrastructure(builder.Configuration);
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-builder.Services.AddExceptionHandler<ValidationExceptionHandler>();
-builder.Services.AddProblemDetails();
 
 var jwtKey = builder.Configuration["Jwt:Key"]
     ?? throw new InvalidOperationException("Configuration 'Jwt:Key' is not set.");
@@ -45,7 +33,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
 
 builder.Services.AddAuthorization(options =>
 {
-    options.AddPolicy(RequireAdminRolePolicy, policy => policy.RequireRole("Admin"));
+    options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
 });
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
@@ -60,34 +51,21 @@ builder.Services.AddCors(options =>
     });
 });
 
-var connectionString = builder.Configuration.GetConnectionString("ProductCatalogDb")
-    ?? throw new InvalidOperationException("Connection string 'ProductCatalogDb' is not configured.");
+builder.Services.AddReverseProxy()
+    .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-builder.Services.AddHealthChecks()
-    .AddNpgSql(connectionString, name: "product-catalog-db");
+builder.Services.AddHealthChecks();
 
 var app = builder.Build();
-
-using (var scope = app.Services.CreateScope())
-{
-    var dbContext = scope.ServiceProvider.GetRequiredService<ProductCatalogDbContext>();
-    dbContext.Database.Migrate();
-}
-
-app.UseExceptionHandler();
 
 app.UseCors(FrontendCorsPolicy);
 
 app.UseAuthentication();
 app.UseAuthorization();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
 app.MapHealthChecks("/health").AllowAnonymous();
 
-app.MapProductEndpoints();
-app.MapCategoryEndpoints();
+app.MapReverseProxy();
 
 app.Run();
 

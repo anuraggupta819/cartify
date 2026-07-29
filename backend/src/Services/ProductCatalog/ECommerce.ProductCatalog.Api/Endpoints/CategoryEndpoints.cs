@@ -16,7 +16,7 @@ public static class CategoryEndpoints
         {
             var category = await service.CreateAsync(request, cancellationToken);
             return Results.Created($"/api/categories/{category.Id}", category);
-        });
+        }).RequireAuthorization("RequireAdminRole");
 
         return group;
     }
