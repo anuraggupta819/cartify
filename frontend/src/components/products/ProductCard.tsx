@@ -3,6 +3,7 @@ import type { ProductDto } from '../../api/types'
 import { useStock } from '../../hooks/useStock'
 import { useCart } from '../../hooks/useCart'
 import { useAuth } from '../../hooks/useAuth'
+import { useTapPulse } from '../../hooks/useTapPulse'
 import { formatCurrency } from '../../lib/currency'
 import { DeleteProductButton } from './DeleteProductButton'
 
@@ -10,6 +11,7 @@ export function ProductCard({ product, categoryName }: { product: ProductDto; ca
   const { data: stock, isLoading: stockLoading } = useStock(product.id)
   const { addItem } = useCart()
   const { isAdmin } = useAuth()
+  const { isPulsing, pulse } = useTapPulse()
 
   // No stock row (404) is treated the same as zero available, not "unknown" —
   // a product with no inventory record has nothing to sell.
@@ -46,8 +48,11 @@ export function ProductCard({ product, categoryName }: { product: ProductDto; ca
           <button
             type="button"
             disabled={outOfStock}
-            onClick={() => addItem(product)}
-            className="rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => {
+              addItem(product)
+              pulse()
+            }}
+            className={`rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-medium text-white transition-transform duration-150 hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 ${isPulsing ? 'scale-90' : 'scale-100'}`}
           >
             Add to Cart
           </button>

@@ -1,6 +1,7 @@
 import { Link, useNavigate } from 'react-router-dom'
 import { useCart } from '../../hooks/useCart'
 import { formatCurrency } from '../../lib/currency'
+import { CartItemRow } from './CartItemRow'
 
 export function CartPage() {
   const { items, removeItem, updateQuantity, totalPrice } = useCart()
@@ -27,34 +28,7 @@ export function CartPage() {
 
       <div className="divide-y divide-slate-100 rounded-lg border border-slate-200 bg-white">
         {items.map((item) => (
-          <div key={item.productId} className="flex items-center gap-4 p-4">
-            <div className="h-16 w-16 flex-shrink-0 overflow-hidden rounded-md bg-slate-100">
-              {item.imageUrl ? (
-                <img src={item.imageUrl} alt={item.name} className="h-full w-full object-cover" />
-              ) : null}
-            </div>
-            <div className="flex-1">
-              <div className="font-medium text-slate-900">{item.name}</div>
-              <div className="text-sm text-slate-500">{formatCurrency(item.price)} each</div>
-            </div>
-            <input
-              type="number"
-              min="1"
-              value={item.quantity}
-              onChange={(e) => updateQuantity(item.productId, Math.max(1, Number(e.target.value)))}
-              className="w-16 rounded-md border border-slate-300 px-2 py-1 text-sm focus:border-indigo-500 focus:outline-none"
-            />
-            <div className="w-24 text-right font-medium text-slate-900">
-              {formatCurrency(item.price * item.quantity)}
-            </div>
-            <button
-              type="button"
-              onClick={() => removeItem(item.productId)}
-              className="text-sm font-medium text-red-600 hover:text-red-700"
-            >
-              Remove
-            </button>
-          </div>
+          <CartItemRow key={item.productId} item={item} onUpdateQuantity={updateQuantity} onRemove={removeItem} />
         ))}
       </div>
 

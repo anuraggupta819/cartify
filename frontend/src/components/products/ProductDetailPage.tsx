@@ -4,6 +4,7 @@ import { useProduct } from '../../hooks/useProducts'
 import { useCategories } from '../../hooks/useCategories'
 import { useStock } from '../../hooks/useStock'
 import { useCart } from '../../hooks/useCart'
+import { useTapPulse } from '../../hooks/useTapPulse'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { ErrorAlert } from '../common/ErrorAlert'
 import { formatCurrency } from '../../lib/currency'
@@ -14,6 +15,7 @@ export function ProductDetailPage() {
   const { data: categories } = useCategories()
   const { data: stock, isLoading: stockLoading } = useStock(id)
   const { addItem } = useCart()
+  const { isPulsing, pulse } = useTapPulse()
   const [quantity, setQuantity] = useState(1)
 
   if (isLoading) return <LoadingSpinner />
@@ -62,8 +64,11 @@ export function ProductDetailPage() {
           <button
             type="button"
             disabled={outOfStock}
-            onClick={() => addItem(product, quantity)}
-            className="rounded-md bg-indigo-600 px-6 py-2 text-sm font-medium text-white hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50"
+            onClick={() => {
+              addItem(product, quantity)
+              pulse()
+            }}
+            className={`rounded-md bg-indigo-600 px-6 py-2 text-sm font-medium text-white transition-transform duration-150 hover:bg-indigo-700 disabled:cursor-not-allowed disabled:opacity-50 ${isPulsing ? 'scale-90' : 'scale-100'}`}
           >
             Add to Cart
           </button>
