@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { useProducts } from '../../hooks/useProducts'
 import { useCategories } from '../../hooks/useCategories'
+import { useAuth } from '../../hooks/useAuth'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { ErrorAlert } from '../common/ErrorAlert'
 import { DeleteProductButton } from './DeleteProductButton'
@@ -13,6 +14,7 @@ export function ProductListPage() {
   const [pageNumber, setPageNumber] = useState(1)
   const { data, isLoading, error } = useProducts(pageNumber, PAGE_SIZE)
   const { data: categories } = useCategories()
+  const { isAdmin } = useAuth()
 
   const categoryName = (categoryId: string) =>
     categories?.find((c) => c.id === categoryId)?.name ?? '—'
@@ -36,7 +38,7 @@ export function ProductListPage() {
                 <th className="px-4 py-3 font-medium">SKU</th>
                 <th className="px-4 py-3 font-medium">Category</th>
                 <th className="px-4 py-3 font-medium">Price</th>
-                <th className="px-4 py-3 font-medium"></th>
+                {isAdmin && <th className="px-4 py-3 font-medium"></th>}
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-100">
@@ -46,17 +48,19 @@ export function ProductListPage() {
                   <td className="px-4 py-3 text-slate-500">{product.sku}</td>
                   <td className="px-4 py-3 text-slate-500">{categoryName(product.categoryId)}</td>
                   <td className="px-4 py-3 text-slate-500">{formatCurrency(product.price)}</td>
-                  <td className="px-4 py-3">
-                    <div className="flex justify-end gap-4">
-                      <Link
-                        to={`/products/${product.id}/edit`}
-                        className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
-                      >
-                        Edit
-                      </Link>
-                      <DeleteProductButton productId={product.id} productName={product.name} />
-                    </div>
-                  </td>
+                  {isAdmin && (
+                    <td className="px-4 py-3">
+                      <div className="flex justify-end gap-4">
+                        <Link
+                          to={`/products/${product.id}/edit`}
+                          className="text-sm font-medium text-indigo-600 hover:text-indigo-700"
+                        >
+                          Edit
+                        </Link>
+                        <DeleteProductButton productId={product.id} productName={product.name} />
+                      </div>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>

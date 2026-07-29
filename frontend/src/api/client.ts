@@ -2,11 +2,18 @@ import { ApiError, type ProblemDetails } from './types'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5283/api'
 
+let authToken: string | null = null
+
+export function setAuthToken(token: string | null) {
+  authToken = token
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
   const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
     headers: {
       'Content-Type': 'application/json',
+      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
       ...options?.headers,
     },
   })

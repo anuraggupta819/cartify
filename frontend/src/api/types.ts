@@ -40,6 +40,24 @@ export interface CreateCategoryRequest {
   name: string
 }
 
+export type UserRole = 'Admin' | 'Customer'
+
+export interface GoogleLoginRequest {
+  idToken: string
+}
+
+export interface AdminLoginRequest {
+  username: string
+  password: string
+}
+
+export interface AuthResponse {
+  token: string
+  email: string
+  name: string | null
+  role: UserRole
+}
+
 export interface ProblemDetails {
   status?: number
   title?: string

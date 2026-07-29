@@ -1,6 +1,9 @@
 import { Link, Outlet } from 'react-router-dom'
+import { useAuth } from '../../hooks/useAuth'
 
 export function AppShell() {
+  const { user, isAdmin, logout } = useAuth()
+
   return (
     <div className="min-h-screen bg-slate-50">
       <header className="border-b border-slate-200 bg-white">
@@ -8,13 +11,33 @@ export function AppShell() {
           <Link to="/" className="text-xl font-bold text-indigo-600">
             Cartify
           </Link>
-          <nav>
-            <Link
-              to="/products/new"
-              className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
-            >
-              New Product
-            </Link>
+          <nav className="flex items-center gap-4">
+            {isAdmin && (
+              <Link
+                to="/products/new"
+                className="rounded-md bg-indigo-600 px-4 py-2 text-sm font-medium text-white hover:bg-indigo-700"
+              >
+                New Product
+              </Link>
+            )}
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-slate-600">
+                  {user.name ?? user.email} <span className="text-slate-400">({user.role})</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={logout}
+                  className="text-sm font-medium text-slate-600 hover:text-slate-900"
+                >
+                  Sign out
+                </button>
+              </div>
+            ) : (
+              <Link to="/login" className="text-sm font-medium text-indigo-600 hover:text-indigo-700">
+                Sign in
+              </Link>
+            )}
           </nav>
         </div>
       </header>
