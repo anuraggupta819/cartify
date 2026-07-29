@@ -75,7 +75,7 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push
+      - name: Build and push ProductCatalog
         uses: docker/build-push-action@v6
         with:
           context: backend
@@ -84,6 +84,26 @@ jobs:
           tags: |
             ghcr.io/anuraggupta819/cartify-productcatalog-api:latest
             ghcr.io/anuraggupta819/cartify-productcatalog-api:${{ github.sha }}
+
+      - name: Build and push Identity
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/src/Services/Identity/ECommerce.Identity.Api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/anuraggupta819/cartify-identity-api:latest
+            ghcr.io/anuraggupta819/cartify-identity-api:${{ github.sha }}
+
+      - name: Build and push Gateway
+        uses: docker/build-push-action@v6
+        with:
+          context: backend
+          file: backend/src/Gateway/ECommerce.Gateway.Api/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/anuraggupta819/cartify-gateway-api:latest
+            ghcr.io/anuraggupta819/cartify-gateway-api:${{ github.sha }}
 
   deploy:
     needs: [build-and-push]
@@ -94,7 +114,7 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Update Container App image
+      - name: Update Container App images
         uses: azure/CLI@v2
         with:
           inlineScript: |
@@ -102,3 +122,11 @@ jobs:
               --name cartify-api \
               --resource-group cartify-rg \
               --image ghcr.io/anuraggupta819/cartify-productcatalog-api:${{ github.sha }}
+            az containerapp update \
+              --name cartify-identity \
+              --resource-group cartify-rg \
+              --image ghcr.io/anuraggupta819/cartify-identity-api:${{ github.sha }}
+            az containerapp update \
+              --name cartify-gateway \
+              --resource-group cartify-rg \
+              --image ghcr.io/anuraggupta819/cartify-gateway-api:${{ github.sha }}
