@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import type { ProductDto } from '../api/types'
+import { triggerHaptic } from '../lib/haptics'
 
 export interface CartItem {
   productId: string
@@ -41,6 +42,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items])
 
   function addItem(product: ProductDto, quantity = 1) {
+    triggerHaptic()
     setItems((current) => {
       const existing = current.find((item) => item.productId === product.id)
       if (existing) {
@@ -64,7 +66,13 @@ export function CartProvider({ children }: { children: ReactNode }) {
       removeItem(productId)
       return
     }
-    setItems((current) => current.map((item) => (item.productId === productId ? { ...item, quantity } : item)))
+    setItems((current) => {
+      const existing = current.find((item) => item.productId === productId)
+      if (existing && quantity > existing.quantity) {
+        triggerHaptic()
+      }
+      return current.map((item) => (item.productId === productId ? { ...item, quantity } : item))
+    })
   }
 
   function clear() {
