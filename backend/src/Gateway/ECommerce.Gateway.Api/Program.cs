@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
+using System.Text.RegularExpressions;
 
 const string FrontendCorsPolicy = "FrontendCorsPolicy";
 
@@ -40,12 +41,15 @@ builder.Services.AddAuthorization(options =>
 });
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+var vercelOriginPattern = builder.Configuration["Cors:VercelOriginPattern"];
+var vercelOriginRegex = string.IsNullOrEmpty(vercelOriginPattern) ? null : new Regex(vercelOriginPattern);
 
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(FrontendCorsPolicy, policy =>
     {
-        policy.WithOrigins(allowedOrigins)
+        policy.SetIsOriginAllowed(origin =>
+                  allowedOrigins.Contains(origin) || (vercelOriginRegex?.IsMatch(origin) ?? false))
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
