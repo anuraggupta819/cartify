@@ -1,5 +1,6 @@
 using ECommerce.ProductCatalog.Application.Abstractions;
 using ECommerce.ProductCatalog.Application.Services;
+using ECommerce.ProductCatalog.Infrastructure.ExternalServices;
 using ECommerce.ProductCatalog.Infrastructure.Persistence;
 using ECommerce.ProductCatalog.Infrastructure.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -22,6 +23,9 @@ public static class DependencyInjection
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<ProductService>();
         services.AddScoped<CategoryService>();
+
+        services.AddHttpContextAccessor();
+        services.AddHttpClient<IStockProvisioningClient, HttpStockProvisioningClient>();
 
         return services;
     }

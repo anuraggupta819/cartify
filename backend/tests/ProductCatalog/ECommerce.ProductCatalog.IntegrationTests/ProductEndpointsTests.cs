@@ -21,7 +21,7 @@ public class ProductEndpointsTests(ProductCatalogApiFactory factory) : IClassFix
     public async Task CreateProduct_ThenGetIt_ReturnsSameProduct()
     {
         var category = await CreateCategoryAsync("Electronics");
-        var createRequest = new CreateProductRequest("Keyboard", "Mechanical keyboard", $"SKU-{Guid.NewGuid():N}", 49.99m, category.Id);
+        var createRequest = new CreateProductRequest("Keyboard", "Mechanical keyboard", $"SKU-{Guid.NewGuid():N}", 49.99m, category.Id, null, 0);
 
         var createResponse = await _client.PostAsJsonAsync("/api/products", createRequest);
         Assert.Equal(HttpStatusCode.Created, createResponse.StatusCode);
@@ -49,7 +49,7 @@ public class ProductEndpointsTests(ProductCatalogApiFactory factory) : IClassFix
     public async Task CreateProduct_WithNonPositivePrice_ReturnsBadRequest()
     {
         var category = await CreateCategoryAsync("Books");
-        var createRequest = new CreateProductRequest("Free Book", "desc", $"SKU-{Guid.NewGuid():N}", 0m, category.Id);
+        var createRequest = new CreateProductRequest("Free Book", "desc", $"SKU-{Guid.NewGuid():N}", 0m, category.Id, null, 0);
 
         var response = await _client.PostAsJsonAsync("/api/products", createRequest);
 
@@ -60,7 +60,7 @@ public class ProductEndpointsTests(ProductCatalogApiFactory factory) : IClassFix
     public async Task GetAllProducts_ReturnsCreatedProduct()
     {
         var category = await CreateCategoryAsync("Toys");
-        var createRequest = new CreateProductRequest("Toy Car", "desc", $"SKU-{Guid.NewGuid():N}", 12.5m, category.Id);
+        var createRequest = new CreateProductRequest("Toy Car", "desc", $"SKU-{Guid.NewGuid():N}", 12.5m, category.Id, null, 0);
         var createResponse = await _client.PostAsJsonAsync("/api/products", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<ProductDto>();
 
@@ -73,7 +73,7 @@ public class ProductEndpointsTests(ProductCatalogApiFactory factory) : IClassFix
     [Fact]
     public async Task CreateProduct_WithUnknownCategory_ReturnsBadRequest()
     {
-        var createRequest = new CreateProductRequest("Ghost Product", "desc", $"SKU-{Guid.NewGuid():N}", 9.99m, Guid.NewGuid());
+        var createRequest = new CreateProductRequest("Ghost Product", "desc", $"SKU-{Guid.NewGuid():N}", 9.99m, Guid.NewGuid(), null, 0);
 
         var response = await _client.PostAsJsonAsync("/api/products", createRequest);
 
@@ -84,7 +84,7 @@ public class ProductEndpointsTests(ProductCatalogApiFactory factory) : IClassFix
     public async Task DeleteProduct_RemovesIt()
     {
         var category = await CreateCategoryAsync("Garden");
-        var createRequest = new CreateProductRequest("Shovel", "desc", $"SKU-{Guid.NewGuid():N}", 25m, category.Id);
+        var createRequest = new CreateProductRequest("Shovel", "desc", $"SKU-{Guid.NewGuid():N}", 25m, category.Id, null, 0);
         var createResponse = await _client.PostAsJsonAsync("/api/products", createRequest);
         var created = await createResponse.Content.ReadFromJsonAsync<ProductDto>();
 
@@ -99,7 +99,7 @@ public class ProductEndpointsTests(ProductCatalogApiFactory factory) : IClassFix
     public async Task CreateProduct_WithoutToken_ReturnsUnauthorized()
     {
         var anonymousClient = factory.CreateClient();
-        var createRequest = new CreateProductRequest("Sneaky", "desc", $"SKU-{Guid.NewGuid():N}", 9.99m, Guid.NewGuid());
+        var createRequest = new CreateProductRequest("Sneaky", "desc", $"SKU-{Guid.NewGuid():N}", 9.99m, Guid.NewGuid(), null, 0);
 
         var response = await anonymousClient.PostAsJsonAsync("/api/products", createRequest);
 

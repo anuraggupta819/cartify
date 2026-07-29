@@ -6,5 +6,5 @@ namespace ECommerce.ProductCatalog.Application.Mapping;
 public static class ProductMappingExtensions
 {
     public static ProductDto ToDto(this Product product) =>
-        new(product.Id, product.Name, product.Description, product.Sku, product.Price, product.CategoryId, product.CreatedAtUtc);
+        new(product.Id, product.Name, product.Description, product.Sku, product.Price, product.CategoryId, product.ImageUrl, product.CreatedAtUtc);
 }

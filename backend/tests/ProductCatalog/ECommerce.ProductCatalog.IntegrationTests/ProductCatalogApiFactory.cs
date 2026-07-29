@@ -1,9 +1,11 @@
+using ECommerce.ProductCatalog.Application.Abstractions;
 using ECommerce.ProductCatalog.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Testcontainers.PostgreSql;
 
 namespace ECommerce.ProductCatalog.IntegrationTests;
@@ -39,6 +41,9 @@ public class ProductCatalogApiFactory : WebApplicationFactory<Program>, IAsyncLi
             }
 
             services.AddDbContext<ProductCatalogDbContext>(options => options.UseNpgsql(_postgres.GetConnectionString()));
+
+            services.RemoveAll<IStockProvisioningClient>();
+            services.AddSingleton<IStockProvisioningClient, FakeStockProvisioningClient>();
         });
     }
 

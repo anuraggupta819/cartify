@@ -6,6 +6,7 @@ import { GoogleOAuthProvider } from '@react-oauth/google'
 import './index.css'
 import { router } from './routes/router'
 import { AuthProvider } from './hooks/useAuth'
+import { CartProvider } from './hooks/useCart'
 
 const queryClient = new QueryClient()
 const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID
@@ -15,7 +16,9 @@ createRoot(document.getElementById('root')!).render(
     <GoogleOAuthProvider clientId={googleClientId}>
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
-          <RouterProvider router={router} />
+          <CartProvider>
+            <RouterProvider router={router} />
+          </CartProvider>
         </AuthProvider>
       </QueryClientProvider>
     </GoogleOAuthProvider>

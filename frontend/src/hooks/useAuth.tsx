@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
+import { createContext, useContext, useState, type ReactNode } from 'react'
 import { authApi } from '../api/auth'
 import { setAuthToken } from '../api/client'
 import type { AdminLoginRequest, AuthResponse, UserRole } from '../api/types'
@@ -39,16 +39,19 @@ function readPersisted(): AuthResponse | null {
   }
 }
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<AuthUser | null>(null)
+// Reads localStorage synchronously as the initial state (not in a useEffect) so a logged-in
+// user's identity is available on the very first render — otherwise route guards like
+// AdminRoute/RequireAuthRoute see `user === null` on that first render and redirect to
+// /login before the effect has a chance to run, even though a valid session exists.
+function initialUser(): AuthUser | null {
+  const stored = readPersisted()
+  if (!stored) return null
+  setAuthToken(stored.token)
+  return { email: stored.email, name: stored.name, role: stored.role }
+}
 
-  useEffect(() => {
-    const stored = readPersisted()
-    if (stored) {
-      setAuthToken(stored.token)
-      setUser({ email: stored.email, name: stored.name, role: stored.role })
-    }
-  }, [])
+export function AuthProvider({ children }: { children: ReactNode }) {
+  const [user, setUser] = useState<AuthUser | null>(initialUser)
 
   function applyAuthResponse(response: AuthResponse) {
     setAuthToken(response.token)

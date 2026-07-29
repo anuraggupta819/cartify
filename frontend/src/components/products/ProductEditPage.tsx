@@ -17,6 +17,7 @@ export function ProductEditPage() {
         description: values.description,
         price: values.price,
         categoryId: values.categoryId,
+        imageUrl: values.imageUrl,
       })
       navigate('/')
     } catch {

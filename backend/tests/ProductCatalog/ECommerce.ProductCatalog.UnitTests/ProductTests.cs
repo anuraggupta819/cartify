@@ -46,7 +46,7 @@ public class ProductTests
         var product = new Product(Guid.NewGuid(), "Widget", "desc", "SKU-1", 9.99m, Guid.NewGuid());
         var newCategoryId = Guid.NewGuid();
 
-        product.UpdateDetails("New Widget", "new desc", 19.99m, newCategoryId);
+        product.UpdateDetails("New Widget", "new desc", 19.99m, newCategoryId, null);
 
         Assert.Equal("New Widget", product.Name);
         Assert.Equal(19.99m, product.Price);
@@ -59,6 +59,6 @@ public class ProductTests
         var product = new Product(Guid.NewGuid(), "Widget", "desc", "SKU-1", 9.99m, Guid.NewGuid());
 
         Assert.Throws<ArgumentOutOfRangeException>(() =>
-            product.UpdateDetails("Widget", "desc", 0m, Guid.NewGuid()));
+            product.UpdateDetails("Widget", "desc", 0m, Guid.NewGuid(), null));
     }
 }

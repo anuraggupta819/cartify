@@ -6,7 +6,11 @@ using ECommerce.ProductCatalog.Domain.Entities;
 
 namespace ECommerce.ProductCatalog.Application.Services;
 
-public class ProductService(IProductRepository productRepository, ICategoryRepository categoryRepository, IUnitOfWork unitOfWork)
+public class ProductService(
+    IProductRepository productRepository,
+    ICategoryRepository categoryRepository,
+    IUnitOfWork unitOfWork,
+    IStockProvisioningClient stockProvisioningClient)
 {
     public async Task<PagedResult<ProductDto>> GetPagedAsync(int pageNumber, int pageSize, CancellationToken cancellationToken = default)
     {
@@ -31,9 +35,12 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
             throw new ArgumentException($"Category '{request.CategoryId}' does not exist.", nameof(request.CategoryId));
         }
 
-        var product = new Product(Guid.NewGuid(), request.Name, request.Description, request.Sku, request.Price, request.CategoryId);
+        var product = new Product(Guid.NewGuid(), request.Name, request.Description, request.Sku, request.Price, request.CategoryId, request.ImageUrl);
         await productRepository.AddAsync(product, cancellationToken);
         await unitOfWork.SaveChangesAsync(cancellationToken);
+
+        await stockProvisioningClient.ProvisionAsync(product.Id, request.InitialStockQuantity, cancellationToken);
+
         return product.ToDto();
     }
 
@@ -51,7 +58,7 @@ public class ProductService(IProductRepository productRepository, ICategoryRepos
             throw new ArgumentException($"Category '{request.CategoryId}' does not exist.", nameof(request.CategoryId));
         }
 
-        product.UpdateDetails(request.Name, request.Description, request.Price, request.CategoryId);
+        product.UpdateDetails(request.Name, request.Description, request.Price, request.CategoryId, request.ImageUrl);
         await unitOfWork.SaveChangesAsync(cancellationToken);
         return product.ToDto();
     }

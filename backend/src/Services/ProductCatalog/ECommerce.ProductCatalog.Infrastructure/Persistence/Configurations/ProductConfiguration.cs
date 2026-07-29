@@ -15,6 +15,7 @@ public class ProductConfiguration : IEntityTypeConfiguration<Product>
         builder.Property(p => p.Description).HasMaxLength(2000);
         builder.Property(p => p.Sku).IsRequired().HasMaxLength(50);
         builder.Property(p => p.Price).HasColumnType("decimal(18,2)");
+        builder.Property(p => p.ImageUrl).HasMaxLength(2000);
 
         builder.HasIndex(p => p.Sku).IsUnique();
     }

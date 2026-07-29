@@ -9,6 +9,8 @@ export interface ProductFormValues {
   sku: string
   price: number
   categoryId: string
+  imageUrl: string | null
+  initialStockQuantity: number
 }
 
 interface ProductFormProps {
@@ -25,12 +27,24 @@ export function ProductForm({ mode, initialValues, onSubmit, isSubmitting, error
   const [sku, setSku] = useState(initialValues?.sku ?? '')
   const [price, setPrice] = useState(initialValues?.price?.toString() ?? '')
   const [categoryId, setCategoryId] = useState(initialValues?.categoryId ?? '')
+  const [imageUrl, setImageUrl] = useState(initialValues?.imageUrl ?? '')
+  const [initialStockQuantity, setInitialStockQuantity] = useState(
+    initialValues?.initialStockQuantity?.toString() ?? '0',
+  )
 
   const { data: categories, isLoading: categoriesLoading } = useCategories()
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
-    onSubmit({ name, description, sku, price: Number(price), categoryId })
+    onSubmit({
+      name,
+      description,
+      sku,
+      price: Number(price),
+      categoryId,
+      imageUrl: imageUrl.trim() === '' ? null : imageUrl.trim(),
+      initialStockQuantity: Number(initialStockQuantity),
+    })
   }
 
   return (
@@ -79,6 +93,42 @@ export function ProductForm({ mode, initialValues, onSubmit, isSubmitting, error
           className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
         />
       </div>
+
+      <div>
+        <label className="block text-sm font-medium text-slate-700">Image URL</label>
+        <input
+          type="url"
+          value={imageUrl}
+          onChange={(e) => setImageUrl(e.target.value)}
+          placeholder="https://example.com/image.jpg"
+          className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+        />
+        {imageUrl.trim() !== '' && (
+          <img
+            src={imageUrl}
+            alt="Preview"
+            className="mt-2 h-24 w-24 rounded-md border border-slate-200 object-cover"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+            }}
+          />
+        )}
+      </div>
+
+      {mode === 'create' && (
+        <div>
+          <label className="block text-sm font-medium text-slate-700">Initial Stock Quantity</label>
+          <input
+            type="number"
+            min="0"
+            step="1"
+            value={initialStockQuantity}
+            onChange={(e) => setInitialStockQuantity(e.target.value)}
+            required
+            className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:border-indigo-500 focus:outline-none"
+          />
+        </div>
+      )}
 
       <div>
         <div className="flex items-center justify-between">

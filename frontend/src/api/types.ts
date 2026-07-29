@@ -5,6 +5,7 @@ export interface ProductDto {
   sku: string
   price: number
   categoryId: string
+  imageUrl: string | null
   createdAtUtc: string
 }
 
@@ -27,6 +28,8 @@ export interface CreateProductRequest {
   sku: string
   price: number
   categoryId: string
+  imageUrl: string | null
+  initialStockQuantity: number
 }
 
 export interface UpdateProductRequest {
@@ -34,6 +37,7 @@ export interface UpdateProductRequest {
   description: string
   price: number
   categoryId: string
+  imageUrl: string | null
 }
 
 export interface CreateCategoryRequest {
@@ -56,6 +60,61 @@ export interface AuthResponse {
   email: string
   name: string | null
   role: UserRole
+}
+
+export interface StockDto {
+  productId: string
+  quantity: number
+  reserved: number
+  available: number
+}
+
+export interface SetStockQuantityRequest {
+  quantity: number
+}
+
+export type OrderStatus = 'PendingPayment' | 'Paid' | 'Cancelled'
+
+export interface OrderLineDto {
+  productId: string
+  productName: string
+  unitPrice: number
+  quantity: number
+  lineTotal: number
+}
+
+export interface OrderDto {
+  id: string
+  status: OrderStatus
+  totalAmount: number
+  createdAtUtc: string
+  lines: OrderLineDto[]
+}
+
+export interface CreateOrderLineRequest {
+  productId: string
+  quantity: number
+}
+
+export interface CreateOrderRequest {
+  lines: CreateOrderLineRequest[]
+}
+
+export interface CreateRazorpayOrderRequest {
+  orderId: string
+}
+
+export interface RazorpayOrderResponse {
+  razorpayOrderId: string
+  razorpayKeyId: string
+  amountInPaise: number
+  currency: string
+}
+
+export interface VerifyPaymentRequest {
+  razorpayOrderId: string
+  razorpayPaymentId: string
+  razorpaySignature: string
 }
 
 export interface ProblemDetails {

@@ -7,6 +7,7 @@ public record ProductDto(
     string Sku,
     decimal Price,
     Guid CategoryId,
+    string? ImageUrl,
     DateTime CreatedAtUtc);
 
 public record CreateProductRequest(
@@ -14,10 +15,13 @@ public record CreateProductRequest(
     string Description,
     string Sku,
     decimal Price,
-    Guid CategoryId);
+    Guid CategoryId,
+    string? ImageUrl,
+    int InitialStockQuantity);
 
 public record UpdateProductRequest(
     string Name,
     string Description,
     decimal Price,
-    Guid CategoryId);
+    Guid CategoryId,
+    string? ImageUrl);

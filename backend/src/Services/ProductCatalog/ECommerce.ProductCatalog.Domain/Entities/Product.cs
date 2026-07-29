@@ -8,11 +8,12 @@ public class Product
     public string Sku { get; private set; } = null!;
     public decimal Price { get; private set; }
     public Guid CategoryId { get; private set; }
+    public string? ImageUrl { get; private set; }
     public DateTime CreatedAtUtc { get; private set; }
 
     private Product() { }
 
-    public Product(Guid id, string name, string description, string sku, decimal price, Guid categoryId)
+    public Product(Guid id, string name, string description, string sku, decimal price, Guid categoryId, string? imageUrl = null)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -35,10 +36,11 @@ public class Product
         Sku = sku;
         Price = price;
         CategoryId = categoryId;
+        ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl;
         CreatedAtUtc = DateTime.UtcNow;
     }
 
-    public void UpdateDetails(string name, string description, decimal price, Guid categoryId)
+    public void UpdateDetails(string name, string description, decimal price, Guid categoryId, string? imageUrl)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -54,5 +56,6 @@ public class Product
         Description = description ?? string.Empty;
         Price = price;
         CategoryId = categoryId;
+        ImageUrl = string.IsNullOrWhiteSpace(imageUrl) ? null : imageUrl;
     }
 }

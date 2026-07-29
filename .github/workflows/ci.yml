@@ -62,6 +62,21 @@ jobs:
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        include:
+          - service: productcatalog
+            dockerfile: backend/src/Services/ProductCatalog/ECommerce.ProductCatalog.Api/Dockerfile
+          - service: identity
+            dockerfile: backend/src/Services/Identity/ECommerce.Identity.Api/Dockerfile
+          - service: gateway
+            dockerfile: backend/src/Gateway/ECommerce.Gateway.Api/Dockerfile
+          - service: stockmanagement
+            dockerfile: backend/src/Services/StockManagement/ECommerce.StockManagement.Api/Dockerfile
+          - service: ordermanagement
+            dockerfile: backend/src/Services/OrderManagement/ECommerce.OrderManagement.Api/Dockerfile
+          - service: paymentprocessing
+            dockerfile: backend/src/Services/PaymentProcessing/ECommerce.PaymentProcessing.Api/Dockerfile
 
     steps:
       - uses: actions/checkout@v4
@@ -75,58 +90,45 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Build and push ProductCatalog
+      - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: backend
-          file: backend/src/Services/ProductCatalog/ECommerce.ProductCatalog.Api/Dockerfile
+          file: ${{ matrix.dockerfile }}
           push: true
           tags: |
-            ghcr.io/anuraggupta819/cartify-productcatalog-api:latest
-            ghcr.io/anuraggupta819/cartify-productcatalog-api:${{ github.sha }}
-
-      - name: Build and push Identity
-        uses: docker/build-push-action@v6
-        with:
-          context: backend
-          file: backend/src/Services/Identity/ECommerce.Identity.Api/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/anuraggupta819/cartify-identity-api:latest
-            ghcr.io/anuraggupta819/cartify-identity-api:${{ github.sha }}
-
-      - name: Build and push Gateway
-        uses: docker/build-push-action@v6
-        with:
-          context: backend
-          file: backend/src/Gateway/ECommerce.Gateway.Api/Dockerfile
-          push: true
-          tags: |
-            ghcr.io/anuraggupta819/cartify-gateway-api:latest
-            ghcr.io/anuraggupta819/cartify-gateway-api:${{ github.sha }}
+            ghcr.io/anuraggupta819/cartify-${{ matrix.service }}-api:latest
+            ghcr.io/anuraggupta819/cartify-${{ matrix.service }}-api:${{ github.sha }}
 
   deploy:
     needs: [build-and-push]
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - service: productcatalog
+            containerapp: cartify-api
+          - service: identity
+            containerapp: cartify-identity
+          - service: gateway
+            containerapp: cartify-gateway
+          - service: stockmanagement
+            containerapp: cartify-stockmanagement
+          - service: ordermanagement
+            containerapp: cartify-ordermanagement
+          - service: paymentprocessing
+            containerapp: cartify-paymentprocessing
 
     steps:
       - uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: Update Container App images
+      - name: Update Container App image
         uses: azure/CLI@v2
         with:
           inlineScript: |
             az containerapp update \
-              --name cartify-api \
+              --name ${{ matrix.containerapp }} \
               --resource-group cartify-rg \
-              --image ghcr.io/anuraggupta819/cartify-productcatalog-api:${{ github.sha }}
-            az containerapp update \
-              --name cartify-identity \
-              --resource-group cartify-rg \
-              --image ghcr.io/anuraggupta819/cartify-identity-api:${{ github.sha }}
-            az containerapp update \
-              --name cartify-gateway \
-              --resource-group cartify-rg \
-              --image ghcr.io/anuraggupta819/cartify-gateway-api:${{ github.sha }}
+              --image ghcr.io/anuraggupta819/cartify-${{ matrix.service }}-api:${{ github.sha }}

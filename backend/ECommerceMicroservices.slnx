@@ -16,6 +16,24 @@
     <Project Path="src/Services/ProductCatalog/ECommerce.ProductCatalog.Domain/ECommerce.ProductCatalog.Domain.csproj" />
     <Project Path="src/Services/ProductCatalog/ECommerce.ProductCatalog.Infrastructure/ECommerce.ProductCatalog.Infrastructure.csproj" />
   </Folder>
+  <Folder Name="/src/Services/StockManagement/">
+    <Project Path="src/Services/StockManagement/ECommerce.StockManagement.Api/ECommerce.StockManagement.Api.csproj" />
+    <Project Path="src/Services/StockManagement/ECommerce.StockManagement.Application/ECommerce.StockManagement.Application.csproj" />
+    <Project Path="src/Services/StockManagement/ECommerce.StockManagement.Domain/ECommerce.StockManagement.Domain.csproj" />
+    <Project Path="src/Services/StockManagement/ECommerce.StockManagement.Infrastructure/ECommerce.StockManagement.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/OrderManagement/">
+    <Project Path="src/Services/OrderManagement/ECommerce.OrderManagement.Api/ECommerce.OrderManagement.Api.csproj" />
+    <Project Path="src/Services/OrderManagement/ECommerce.OrderManagement.Application/ECommerce.OrderManagement.Application.csproj" />
+    <Project Path="src/Services/OrderManagement/ECommerce.OrderManagement.Domain/ECommerce.OrderManagement.Domain.csproj" />
+    <Project Path="src/Services/OrderManagement/ECommerce.OrderManagement.Infrastructure/ECommerce.OrderManagement.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/src/Services/PaymentProcessing/">
+    <Project Path="src/Services/PaymentProcessing/ECommerce.PaymentProcessing.Api/ECommerce.PaymentProcessing.Api.csproj" />
+    <Project Path="src/Services/PaymentProcessing/ECommerce.PaymentProcessing.Application/ECommerce.PaymentProcessing.Application.csproj" />
+    <Project Path="src/Services/PaymentProcessing/ECommerce.PaymentProcessing.Domain/ECommerce.PaymentProcessing.Domain.csproj" />
+    <Project Path="src/Services/PaymentProcessing/ECommerce.PaymentProcessing.Infrastructure/ECommerce.PaymentProcessing.Infrastructure.csproj" />
+  </Folder>
   <Folder Name="/tests/" />
   <Folder Name="/tests/ProductCatalog/">
     <Project Path="tests/ProductCatalog/ECommerce.ProductCatalog.IntegrationTests/ECommerce.ProductCatalog.IntegrationTests.csproj" />
