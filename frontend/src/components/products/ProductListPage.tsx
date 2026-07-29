@@ -5,6 +5,7 @@ import { useCategories } from '../../hooks/useCategories'
 import { LoadingSpinner } from '../common/LoadingSpinner'
 import { ErrorAlert } from '../common/ErrorAlert'
 import { DeleteProductButton } from './DeleteProductButton'
+import { formatCurrency } from '../../lib/currency'
 
 const PAGE_SIZE = 10
 
@@ -44,7 +45,7 @@ export function ProductListPage() {
                   <td className="px-4 py-3 font-medium text-slate-900">{product.name}</td>
                   <td className="px-4 py-3 text-slate-500">{product.sku}</td>
                   <td className="px-4 py-3 text-slate-500">{categoryName(product.categoryId)}</td>
-                  <td className="px-4 py-3 text-slate-500">${product.price.toFixed(2)}</td>
+                  <td className="px-4 py-3 text-slate-500">{formatCurrency(product.price)}</td>
                   <td className="px-4 py-3">
                     <div className="flex justify-end gap-4">
                       <Link

@@ -69,7 +69,7 @@ export function ProductForm({ mode, initialValues, onSubmit, isSubmitting, error
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700">Price</label>
+        <label className="block text-sm font-medium text-slate-700">Price (₹)</label>
         <input
           type="number"
           step="0.01"
