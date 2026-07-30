@@ -5,7 +5,7 @@ import { useAuth } from '../../hooks/useAuth'
 import { ErrorAlert } from '../common/ErrorAlert'
 
 export function LoginPage() {
-  const { loginWithGoogle, loginAsAdmin } = useAuth()
+  const { loginWithGoogle, loginAsAdmin, sessionExpired } = useAuth()
   const navigate = useNavigate()
 
   const [username, setUsername] = useState('')
@@ -41,6 +41,12 @@ export function LoginPage() {
   return (
     <div className="mx-auto max-w-sm">
       <h1 className="mb-6 text-2xl font-bold text-slate-900">Sign in</h1>
+
+      {sessionExpired && (
+        <div className="mb-4 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+          Your session has expired. Please sign in again.
+        </div>
+      )}
 
       <div className="rounded-lg border border-slate-200 bg-white p-6">
         <p className="mb-4 text-sm font-medium text-slate-700">Sign in as a customer</p>

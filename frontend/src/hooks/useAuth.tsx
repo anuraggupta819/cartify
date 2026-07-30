@@ -1,6 +1,6 @@
-import { createContext, useContext, useState, type ReactNode } from 'react'
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { authApi } from '../api/auth'
-import { setAuthToken } from '../api/client'
+import { setAuthToken, setUnauthorizedHandler } from '../api/client'
 import type { AdminLoginRequest, AuthResponse, UserRole } from '../api/types'
 
 interface AuthUser {
@@ -12,6 +12,7 @@ interface AuthUser {
 interface AuthContextValue {
   user: AuthUser | null
   isAdmin: boolean
+  sessionExpired: boolean
   loginWithGoogle: (idToken: string) => Promise<void>
   loginAsAdmin: (request: AdminLoginRequest) => Promise<void>
   logout: () => void
@@ -52,10 +53,12 @@ function initialUser(): AuthUser | null {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(initialUser)
+  const [sessionExpired, setSessionExpired] = useState(false)
 
   function applyAuthResponse(response: AuthResponse) {
     setAuthToken(response.token)
     setUser({ email: response.email, name: response.name, role: response.role })
+    setSessionExpired(false)
     persist(response)
   }
 
@@ -75,9 +78,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     persist(null)
   }
 
+  // If a token we're holding gets rejected as expired/invalid by the backend, clear the
+  // session automatically (rather than leaving the UI stuck showing "logged in" while every
+  // authenticated call silently fails) and flag it so the login page can explain why the
+  // user landed there instead of just silently bouncing them.
+  function handleSessionExpired() {
+    logout()
+    setSessionExpired(true)
+  }
+
+  useEffect(() => {
+    setUnauthorizedHandler(handleSessionExpired)
+    return () => setUnauthorizedHandler(null)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
   const value: AuthContextValue = {
     user,
     isAdmin: user?.role === 'Admin',
+    sessionExpired,
     loginWithGoogle,
     loginAsAdmin,
     logout,

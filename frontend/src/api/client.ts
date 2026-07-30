@@ -8,7 +8,19 @@ export function setAuthToken(token: string | null) {
   authToken = token
 }
 
+// Called when a request made WITH a token comes back 401 — the token is expired or
+// otherwise invalid server-side, so the app's idea of "logged in" is stale. Registered
+// by AuthProvider so it can clear the session; kept here (not imported directly) since
+// this module has no dependency on React/auth state otherwise.
+let unauthorizedHandler: (() => void) | null = null
+
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  unauthorizedHandler = handler
+}
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
+  const hadToken = !!authToken
+
   const response = await fetch(`${BASE_URL}${path}`, {
     ...options,
     headers: {
@@ -19,7 +31,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   })
 
   if (!response.ok) {
-    let detail = response.statusText
+    // response.statusText is spec'd to always be "" over HTTP/2 (no reason phrase in the
+    // protocol), which both Vercel and Azure Container Apps serve over — so it can't be
+    // relied on as a fallback message.
+    let detail = `Request failed (${response.status}).`
     let title: string | undefined
 
     try {
@@ -27,7 +42,14 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
       detail = problem.detail ?? detail
       title = problem.title
     } catch {
-      // response body wasn't JSON — fall back to statusText already set above
+      // response body wasn't JSON — keep the status-based fallback above
+    }
+
+    if (response.status === 401) {
+      detail = 'Your session has expired. Please sign in again.'
+      if (hadToken) {
+        unauthorizedHandler?.()
+      }
     }
 
     throw new ApiError(response.status, detail, title)
