@@ -23,8 +23,10 @@ public static class StockEndpoints
 
         group.MapPost("/{productId:guid}/reserve", async (Guid productId, StockAdjustmentRequest request, StockService service, CancellationToken cancellationToken) =>
         {
-            var reserved = await service.ReserveAsync(productId, request.Quantity, cancellationToken);
-            return reserved ? Results.NoContent() : Results.Conflict(new { message = "Insufficient stock." });
+            var outcome = await service.ReserveAsync(productId, request.Quantity, cancellationToken);
+            return outcome.Success
+                ? Results.NoContent()
+                : Results.Conflict(new { message = "Insufficient stock.", available = outcome.Available });
         }).RequireAuthorization();
 
         group.MapPost("/{productId:guid}/release", async (Guid productId, StockAdjustmentRequest request, StockService service, CancellationToken cancellationToken) =>

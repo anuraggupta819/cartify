@@ -31,10 +31,10 @@ public class OrderService(
                 var product = await productCatalogClient.GetProductAsync(lineRequest.ProductId, cancellationToken)
                     ?? throw new ArgumentException($"Product '{lineRequest.ProductId}' does not exist.", nameof(request));
 
-                var didReserve = await stockReservationClient.ReserveAsync(lineRequest.ProductId, lineRequest.Quantity, cancellationToken);
-                if (!didReserve)
+                var reservation = await stockReservationClient.ReserveAsync(lineRequest.ProductId, lineRequest.Quantity, cancellationToken);
+                if (!reservation.Success)
                 {
-                    throw new InsufficientStockException(lineRequest.ProductId);
+                    throw new InsufficientStockException(lineRequest.ProductId, product.Name, reservation.Available);
                 }
 
                 reserved.Add((lineRequest.ProductId, lineRequest.Quantity));

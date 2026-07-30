@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useDeleteProduct } from '../../hooks/useProducts'
 import { ConfirmDialog } from '../common/ConfirmDialog'
+import { ErrorAlert } from '../common/ErrorAlert'
 
 export function DeleteProductButton({ productId, productName }: { productId: string; productName: string }) {
   const [confirmOpen, setConfirmOpen] = useState(false)
@@ -12,7 +13,10 @@ export function DeleteProductButton({ productId, productName }: { productId: str
   }
 
   return (
-    <>
+    // A single wrapping element (not a bare Fragment) so this stays one flex item in the
+    // parent row, and the error stacks below the button instead of becoming its own
+    // sibling flex item squeezed in next to "Edit"/"Delete".
+    <div>
       <button
         type="button"
         onClick={() => setConfirmOpen(true)}
@@ -28,6 +32,11 @@ export function DeleteProductButton({ productId, productName }: { productId: str
         onConfirm={handleConfirm}
         onCancel={() => setConfirmOpen(false)}
       />
-    </>
+      {deleteProduct.isError && (
+        <div className="mt-2 max-w-xs">
+          <ErrorAlert error={deleteProduct.error} />
+        </div>
+      )}
+    </div>
   )
 }

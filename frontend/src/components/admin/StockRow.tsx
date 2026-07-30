@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ProductDto } from '../../api/types'
 import { useSetStockQuantity, useStock } from '../../hooks/useStock'
+import { ApiError } from '../../api/types'
 
 export function StockRow({ product }: { product: ProductDto }) {
   const { data: stock, isLoading } = useStock(product.id)
@@ -36,6 +37,11 @@ export function StockRow({ product }: { product: ProductDto }) {
         >
           {setQuantity.isPending ? 'Saving…' : 'Save'}
         </button>
+        {setQuantity.isError && (
+          <div className="mt-1 text-xs text-red-600">
+            {setQuantity.error instanceof ApiError ? setQuantity.error.detail : 'Failed to save.'}
+          </div>
+        )}
       </td>
     </tr>
   )

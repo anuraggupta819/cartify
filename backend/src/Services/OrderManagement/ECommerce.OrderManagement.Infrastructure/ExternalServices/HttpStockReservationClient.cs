@@ -8,19 +8,22 @@ namespace ECommerce.OrderManagement.Infrastructure.ExternalServices;
 
 public class HttpStockReservationClient(HttpClient httpClient, OutboundAuthorization outboundAuthorization, IConfiguration configuration) : IStockReservationClient
 {
-    public async Task<bool> ReserveAsync(Guid productId, int quantity, CancellationToken cancellationToken = default)
+    public async Task<StockReservationResult> ReserveAsync(Guid productId, int quantity, CancellationToken cancellationToken = default)
     {
         using var request = BuildRequest($"/api/stock/{productId}/reserve", quantity);
         var response = await httpClient.SendAsync(request, cancellationToken);
 
         if (response.StatusCode == HttpStatusCode.Conflict)
         {
-            return false;
+            var body = await response.Content.ReadFromJsonAsync<ConflictResponse>(cancellationToken: cancellationToken);
+            return new StockReservationResult(false, body?.Available ?? 0);
         }
 
         response.EnsureSuccessStatusCode();
-        return true;
+        return new StockReservationResult(true, 0);
     }
+
+    private record ConflictResponse(string Message, int Available);
 
     public async Task ReleaseAsync(Guid productId, int quantity, CancellationToken cancellationToken = default)
     {

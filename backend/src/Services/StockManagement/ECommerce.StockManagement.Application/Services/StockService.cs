@@ -22,7 +22,7 @@ public class StockService(IStockRepository stockRepository)
         return stockRepository.UpsertQuantityAsync(productId, quantity, cancellationToken);
     }
 
-    public Task<bool> ReserveAsync(Guid productId, int quantity, CancellationToken cancellationToken = default)
+    public Task<ReservationOutcome> ReserveAsync(Guid productId, int quantity, CancellationToken cancellationToken = default)
     {
         if (quantity <= 0)
         {

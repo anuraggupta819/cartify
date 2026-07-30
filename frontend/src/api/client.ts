@@ -33,23 +33,33 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
   if (!response.ok) {
     // response.statusText is spec'd to always be "" over HTTP/2 (no reason phrase in the
     // protocol), which both Vercel and Azure Container Apps serve over — so it can't be
-    // relied on as a fallback message.
+    // relied on as a fallback message. ASP.NET Core's own 401/403 challenge/forbid results
+    // (as opposed to our custom exception handlers) also carry no JSON body at all, so those
+    // always hit this fallback too.
     let detail = `Request failed (${response.status}).`
     let title: string | undefined
+    let gotServerDetail = false
 
     try {
       const problem: ProblemDetails = await response.json()
-      detail = problem.detail ?? detail
+      if (problem.detail) {
+        detail = problem.detail
+        gotServerDetail = true
+      }
       title = problem.title
     } catch {
       // response body wasn't JSON — keep the status-based fallback above
     }
 
-    if (response.status === 401) {
+    if (!gotServerDetail && response.status === 401) {
       detail = 'Your session has expired. Please sign in again.'
-      if (hadToken) {
-        unauthorizedHandler?.()
-      }
+    }
+    if (!gotServerDetail && response.status === 403) {
+      detail = "You don't have permission to do that."
+    }
+
+    if (response.status === 401 && hadToken) {
+      unauthorizedHandler?.()
     }
 
     throw new ApiError(response.status, detail, title)
